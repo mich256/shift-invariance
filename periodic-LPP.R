@@ -98,10 +98,10 @@ LPP_grid_max_expression <- function(rows, cols, max_paths = 1000) {
 # Example usage:
 # --------------------
 # For a 2x4 grid, the original case, you can see the symbolic max expression:
-cat("Symbolic LPP Expression for a 2x4 Grid:\n")
-cat(LPP_grid_max_expression(2, 4), "\n")
+# cat("Symbolic LPP Expression for a 2x4 Grid:\n")
+# cat(LPP_grid_max_expression(2, 4), "\n")
 
 # For a numeric example, generate a random 3x5 grid and compute its LPP value:
-set.seed(123)
-X <- matrix(rexp(15, rate = 1), nrow = 3, ncol = 5)
-cat("\nNumeric Last Passage Time for a 3x5 Grid:", LPP_grid_value(X), "\n")
+# set.seed(123)
+# X <- matrix(rexp(15, rate = 1), nrow = 3, ncol = 5)
+# cat("\nNumeric Last Passage Time for a 3x5 Grid:", LPP_grid_value(X), "\n")
