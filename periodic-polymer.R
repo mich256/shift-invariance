@@ -2,8 +2,8 @@ options(repos = c(CRAN = "https://cloud.r-project.org"))
 install.packages("invgamma")
 library(invgamma)
 
-is.wholenumber <- function(x) {
-  x == round(x)
+is.wholenumber <- function(x, tol = .Machine$double.eps^0.5) {
+  abs(x - round(x)) < tol
 }
 
 rand_env_custom <- function(L, n) {
