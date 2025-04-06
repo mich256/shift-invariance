@@ -1,23 +1,25 @@
+options(repos = c(CRAN = "https://cloud.r-project.org"))
 install.packages("invgamma")
 library(invgamma)
+
+is.wholenumber <- function(x) {
+  x == round(x)
+}
 
 rand_env_custom <- function(L, n) {
   # Initialize an empty data frame to hold lattice points and their values
   env_points <- data.frame(i = numeric(), j = numeric(), value = numeric())
   
   # Loop over all possible sums (s = i+j). We start at 2 since i, j >= 1.
-  for (s in 1:n) {
+  for (s in 0:n) {
     # Loop over all allowed differences (d = j-i)
-    for (d in 1:L) {
+    for (d in 0:L) {
       # Compute i and j from s and d
-      i_val <- (s - d)
-      j_val <- (s + d)
+      i_val <- (s - d) / 2
+      j_val <- (s + d) / 2
       
-      # Only include the point if both i and j are positive integers
-      if (i_val == floor(i_val) && j_val == floor(j_val) && i_val >= 1 && j_val >= 1) {
-        # Draw one inverse gamma random variable with shape = 1 and rate = 1
+      if (is.wholenumber(i_val) && is.wholenumber(j_val)) {
         val <- rinvgamma(1, shape = 1, rate = 1)
-        # Append this point to the data frame
         env_points <- rbind(env_points, data.frame(i = i_val, j = j_val, value = val))
       }
     }
