@@ -105,3 +105,4 @@ LPP_grid_max_expression <- function(rows, cols, max_paths = 1000) {
 # set.seed(123)
 # X <- matrix(rexp(15, rate = 1), nrow = 3, ncol = 5)
 # cat("\nNumeric Last Passage Time for a 3x5 Grid:", LPP_grid_value(X), "\n")
+
