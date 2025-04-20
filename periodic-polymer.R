@@ -1,5 +1,5 @@
 options(repos = c(CRAN = "https://cloud.r-project.org"))
-# install.packages("invgamma")
+#install.packages("invgamma")
 library(invgamma)
 
 periodic_invgamma_renv <- function(L,M,N) {
@@ -10,7 +10,7 @@ periodic_invgamma_renv <- function(L,M,N) {
         next
       }
       if (out[i,j] <0) {
-        out[i,j]<-rinvgamma(n=1,shape=1,rate=1)
+        out[i,j]<-rinvgamma(n=1,shape=1,rate=j)
         temp <- min(floor((j-1)/N),floor((L-i)/M))
         if (temp > 0) {
           for (t in 1:temp) {
@@ -27,6 +27,16 @@ periodic_renv<-function(n,L,M,N){
   lapply(1:n,function(x)periodic_invgamma_renv(L,M,N))
 }
 
+rotate_right <- function(lst) {
+  c(tail(lst, 1), head(lst, -1))
+}
+
+shift_rows <- function(m, j1, j2) {
+  lst <- j1:j2
+  m[lst, ] <- m[rotate_right(lst), ]
+  m
+}
+
 #generate all up right paths x->y
 urpaths<-function(x,y){
   v<-y[1]-x[1]
@@ -39,22 +49,33 @@ Z<-function(M,S){
   log(sum(apply(S,2,function(p) prod(unlist(lapply(p,function(z)M[z[1],z[2]]))))))
 }
 
-test <- function(renv,p1,p2){
-  P1 <- urpaths(c(p1[[1]][[1]],p1[[1]][[2]]),c(p1[[2]][[1]],p1[[2]][[2]]))
-  P2 <- urpaths(c(p2[[1]][[1]],p2[[1]][[2]]),c(p2[[2]][[1]],p2[[2]][[2]]))
-  Q1 <- urpaths(c(p1[[1]][[1]],p1[[1]][[2]]+1), c(p1[[2]][[1]],p1[[2]][[2]]+1))
+test <- function(renv,p1,p2) {
+  v <- max(max(-p1[[1]][[2]],0),max(-p2[[1]][[2]],0))
+  P1 <- urpaths(c(p1[[1]][[1]],p1[[1]][[2]]+v),c(p1[[2]][[1]],p1[[2]][[2]]+v))
+  P2 <- urpaths(c(p2[[1]][[1]],p2[[1]][[2]]+v),c(p2[[2]][[1]],p2[[2]][[2]]+v))
+  Q1 <- urpaths(c(p1[[1]][[1]],p1[[1]][[2]]+v+1), c(p1[[2]][[1]],p1[[2]][[2]]+v+1))
   lapply(renv,function(x)c(Z(x,P1),Z(x,P2),Z(x,Q1),Z(x,P1)*Z(x,P2),Z(x,P2)*Z(x,Q1)))
 }
 
-env <- periodic_renv(100,10,3,2)
+test1 <- function(renv,p1,p2) {
+  P1 <- urpaths(c(p1[[1]][[1]],p1[[1]][[2]]),c(p1[[2]][[1]],p1[[2]][[2]]))
+  P2 <- urpaths(c(p2[[1]][[1]],p2[[1]][[2]]),c(p2[[2]][[1]],p2[[2]][[2]]))
+  Q1 <- urpaths(c(p1[[1]][[1]],p1[[1]][[2]]+1), c(p1[[2]][[1]],p1[[2]][[2]]+1))
+  t1 <- Z(x,P1)
+  t2 <- Z(x,P2)
+  t3 <- Z(shift_rows(x, c(p1[[1]][[2]]), c(p1[[2]][[2]]+1)),Q1)
+  lapply(renv,function(x)c(t1,t3,t1*t2,t3*t2))
+}
+
+env <- periodic_renv(100,7,3,2)
 
 p1 <- list(
   list(0,0),
-  list(7,1))
+  list(6,1))
 p2 <- list(
-  list(2,2),
-  list(8,2))
+  list(5,0),
+  list(5,5))
 
-for (i in 1:5) {
-  print(mean(unlist(lapply(test(env,p1,p2),function(x) x[i]))))
+for (i in 1:4) {
+  print(mean(unlist(lapply(test1(env,p1,p2),function(x) x[i]))))
 }
