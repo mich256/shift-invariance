@@ -10,7 +10,7 @@ periodic_invgamma_renv <- function(L,M,N) {
         next
       }
       if (out[i,j] <0) {
-        out[i,j]<-rinvgamma(n=1,shape=1,rate=j)
+        out[i,j]<-rinvgamma(n=1,shape=j/i,rate=1)
         temp <- min(floor((j-1)/N),floor((L-i)/M))
         if (temp > 0) {
           for (t in 1:temp) {
@@ -49,6 +49,10 @@ Z<-function(M,S){
   log(sum(apply(S,2,function(p) prod(unlist(lapply(p,function(z)M[z[1],z[2]]))))))
 }
 
+Z_shift <- function(M,S,i,j){
+  log(sum(apply(S,2,function(p) prod(unlist(lapply(p,function(z)shift_rows(M,i,j)[z[1],z[2]]))))))
+}
+
 test <- function(renv,p1,p2) {
   v <- max(max(-p1[[1]][[2]],0),max(-p2[[1]][[2]],0))
   P1 <- urpaths(c(p1[[1]][[1]],p1[[1]][[2]]+v),c(p1[[2]][[1]],p1[[2]][[2]]+v))
@@ -61,10 +65,9 @@ test1 <- function(renv,p1,p2) {
   P1 <- urpaths(c(p1[[1]][[1]],p1[[1]][[2]]),c(p1[[2]][[1]],p1[[2]][[2]]))
   P2 <- urpaths(c(p2[[1]][[1]],p2[[1]][[2]]),c(p2[[2]][[1]],p2[[2]][[2]]))
   Q1 <- urpaths(c(p1[[1]][[1]],p1[[1]][[2]]+1), c(p1[[2]][[1]],p1[[2]][[2]]+1))
-  t1 <- Z(x,P1)
-  t2 <- Z(x,P2)
-  t3 <- Z(shift_rows(x, c(p1[[1]][[2]]), c(p1[[2]][[2]]+1)),Q1)
-  lapply(renv,function(x)c(t1,t3,t1*t2,t3*t2))
+  i <- c(p1[[1]][[2]])
+  j <- c(p1[[2]][[2]]+1)
+  lapply(renv,function(x)c(Z(x,P1),Z_shift(x,Q1,i,j),Z(x,P1)*Z(x,P2),Z(x,P2)*Z_shift(x,Q1,i,j)))
 }
 
 env <- periodic_renv(100,7,3,2)
@@ -77,5 +80,5 @@ p2 <- list(
   list(5,5))
 
 for (i in 1:4) {
-  print(mean(unlist(lapply(test1(env,p1,p2),function(x) x[i]))))
+  print(mean(unlist(lapply(test1(env,p1,p2),function(x)x[i]))))
 }
