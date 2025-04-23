@@ -10,7 +10,7 @@ periodic_invgamma_renv <- function(L,M,N) {
         next
       }
       if (out[i,j] <0) {
-        out[i,j]<-rinvgamma(n=1,shape=j/i,rate=1)
+        out[i,j]<-rinvgamma(n=1,shape=j+i,rate=1)
         temp <- min(floor((j-1)/N),floor((L-i)/M))
         if (temp > 0) {
           for (t in 1:temp) {
@@ -67,18 +67,18 @@ test1 <- function(renv,p1,p2) {
   Q1 <- urpaths(c(p1[[1]][[1]],p1[[1]][[2]]+1), c(p1[[2]][[1]],p1[[2]][[2]]+1))
   i <- c(p1[[1]][[2]])
   j <- c(p1[[2]][[2]]+1)
-  lapply(renv,function(x)c(Z(x,P1),Z_shift(x,Q1,i,j),Z(x,P1)*Z(x,P2),Z(x,P2)*Z_shift(x,Q1,i,j)))
+  lapply(renv,function(x)c(Z(x,P1),Z_shift(x,Q1,i,j),Z(x,P2),Z_shift(x,P2,i,j),Z(x,P1)*Z(x,P2),Z_shift(x,P2,i,j)*Z_shift(x,Q1,i,j)))
 }
 
-env <- periodic_renv(100,7,3,2)
+env <- periodic_renv(500,8,5,4)
 
 p1 <- list(
-  list(0,0),
-  list(6,1))
+  list(1,3),
+  list(6,5))
 p2 <- list(
-  list(5,0),
-  list(5,5))
+  list(4,1),
+  list(4,6))
 
-for (i in 1:4) {
+for (i in 1:6) {
   print(mean(unlist(lapply(test1(env,p1,p2),function(x)x[i]))))
 }
